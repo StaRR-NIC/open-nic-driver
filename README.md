@@ -10,8 +10,7 @@ multiple PCI-e PFs with multiple TX/RX queues in each PF, and up to two 100Gbps
 ports on the same card.  As of version 1.0, the driver has not implemented the
 ethtool routines to change the hash key and the indirection table.
 
-The driver has been tested on under Ubuntu 18.04 with Linux kernel version
-4.15.0 and 5.3.0.
+The driver has been tested on under Ubuntu 18.04, 20.04, and 22.04 with multiple versions of the Linux kernel.
 
 ## Building the Driver
 
@@ -66,6 +65,55 @@ is `enp216s0f0` and the IP address is `192.168.1.10`.
 2. Run `ping 192.168.1.10`.
 3. Observe that packets captured by `tcpdump` are always duplicated.
 
+### ETHTOOL Test
+
+`ethtool` is a Linux utility and used to control and read status of
+various MAC parameters. Also, this tool is used to obtain various counter registers
+(such as total good packets etc.) from the MAC.
+
+  If the tool is not found, install it from distro.
+
+  ```
+  $ sudo apt install ethtool
+  ```
+
+  List all options that the tool can support
+
+  ```
+  $ ethtool -h
+  ```
+
+  List active interfaces, activate required interface
+  Note: assume interface name is xyz01, IP address is 192.168.1.1
+
+  ```
+  $ ifconfig -a
+
+  $ ifconfig xyz01 192.168.1.1 up
+  ```
+
+  Use ethtool interface to see the status
+  Note: assume interface name is xyz01
+
+  ```
+  $ ethtool xyz01
+  ```
+
+  Show driver information
+  Note: assume interface name is xyz01
+
+  ```
+  $ ethtool -i xyz01
+  ```
+
+  Show adapter statistics
+  Note: assume interface name is xyz01
+
+  ```
+  $ ethtool -S xyz01
+  ```
+
+
 ## Known Issues
 
 ### Static IP Address
@@ -79,9 +127,11 @@ Assigning a static network address seems to solve the issue in most cases.  Add
 the following lines into `/etc/network/interfaces` with the correct interface
 name, IP address.
 
+    ```
     auto IF_NAME
     iface IF_NAME inet static
           address IP_ADDRESS
+    ```
 
 An alternative is to uninstall DHCP.  This can be done by killing any running processes using DHCP with
 `ps -eF | grep dhclient`, and then to disable DHCP.
